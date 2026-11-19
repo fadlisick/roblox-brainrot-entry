@@ -7,7 +7,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
-local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Client = script.Parent
 
 -- Wait for the server to publish its remotes before touching the UI.

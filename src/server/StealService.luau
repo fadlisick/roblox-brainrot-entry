@@ -3,6 +3,7 @@
 -- it walks to your base and becomes yours. The owner can slap you with the
 -- Slap tool to make you drop it, and it walks back to its slot.
 
+local V3 = Vector3.new
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -28,7 +29,7 @@ local function walkModelTo(model, targetPos, speed)
 		end
 		local step = math.min(distance, speed * 0.05)
 		local newPos = current + delta.Unit * step
-		model:PivotTo(CFrame.new(newPos, newPos + Vector3.new(1, 0, 0)))
+		model:PivotTo(CFrame.new(newPos, newPos + V3(1, 0, 0)))
 		task.wait(0.05)
 	end
 	return false
@@ -96,7 +97,7 @@ function StealService.startCarryLoop()
 			if not root or not carry.model.Parent then
 				StealService.dropStolenBrainrot(carrier, true)
 			else
-				local above = root.Position + Vector3.new(0, 4.5 + GameSettings.CARRY_FOLLOW_HEIGHT, 0)
+				local above = root.Position + V3(0, 4.5 + GameSettings.CARRY_FOLLOW_HEIGHT, 0)
 				carry.model:PivotTo(CFrame.new(above))
 				-- Reached home base? The steal completes.
 				local state = playerDataService.getState(carrier)
@@ -215,7 +216,7 @@ function StealService.slapPlayer(slapper, target)
 	end
 	-- Knockback: fling the target away from the slapper.
 	local direction = (targetRoot.Position - slapperRoot.Position).Unit
-	targetRoot.AssemblyLinearVelocity = direction * playerDataService.getSlapKnockback(state) * 4 + Vector3.new(0, 18, 0)
+	targetRoot.AssemblyLinearVelocity = direction * playerDataService.getSlapKnockback(state) * 4 + V3(0, 18, 0)
 	if carrying[target] then
 		StealService.dropStolenBrainrot(target, false)
 		StealService.notifyPlayer(slapper, "SLAP! You saved your brainrot!")

@@ -3,17 +3,19 @@
 -- BillboardGui label: name, rarity colour, mutation and $/sec. The label is
 -- large on purpose — the judge reads it from a screenshot scaled down.
 
+local C = Color3.fromRGB
+local V3 = Vector3.new
 local BrainrotFactory = {}
 
 local FormatMoney = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("FormatMoney"))
 local BrainrotCatalog = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("BrainrotCatalog"))
 
 local MUTATION_COLORS = {
-	Normal = Color3.fromRGB(255, 255, 255),
-	Golden = Color3.fromRGB(255, 215, 0),
-	Diamond = Color3.fromRGB(140, 230, 255),
-	Rainbow = Color3.fromRGB(255, 120, 220),
-	Void = Color3.fromRGB(150, 80, 255),
+	Normal = C(255, 255, 255),
+	Golden = C(255, 215, 0),
+	Diamond = C(140, 230, 255),
+	Rainbow = C(255, 120, 220),
+	Void = C(150, 80, 255),
 }
 
 -- One anchored part of a character model.
@@ -31,88 +33,97 @@ local function charPart(name, size, position, color, parent)
 end
 
 -- Build the accessory for a character: hat, crown, glasses, tie, etc.
+-- Build the accessory for a character: hat, crown, glasses, tie, etc.
+-- P(name, size x/y/z, offset x/y/z, colour r/g/b, shape?, material?, rotX?)
+-- keeps every accessory to one short line: the shape and material default
+-- to a plain block, "Ball"/"Cylinder" and "Neon" override them.
 local function buildAccessory(kind, model, headPos, bodyColor)
+	local function P(name, sx, sy, sz, ox, oy, oz, r, g, b, shape, material, rotX)
+		local part = charPart(name, V3(sx, sy, sz), headPos + V3(ox, oy, oz), C(r, g, b), model)
+		if shape == "Ball" then
+			part.Shape = Enum.PartType.Ball
+		elseif shape == "Cylinder" then
+			part.Shape = Enum.PartType.Cylinder
+		end
+		if material == "Neon" then
+			part.Material = Enum.Material.Neon
+		end
+		if rotX then
+			part.Rotation = V3(rotX, 0, 0)
+		end
+	end
 	if kind == "TopHat" then
-		charPart("TopHatBrim", Vector3.new(2.6, 0.3, 2.6), headPos + Vector3.new(0, 1.1, 0), Color3.fromRGB(30, 30, 35), model)
-		charPart("TopHatTop", Vector3.new(1.6, 1.6, 1.6), headPos + Vector3.new(0, 2, 0), Color3.fromRGB(30, 30, 35), model)
+		P("TopHatBrim", 2.6, 0.3, 2.6, 0, 1.1, 0, 30, 30, 35)
+		P("TopHatTop", 1.6, 1.6, 1.6, 0, 2, 0, 30, 30, 35)
 	elseif kind == "Crown" then
-		local crown = charPart("Crown", Vector3.new(2, 0.9, 2), headPos + Vector3.new(0, 1.2, 0), Color3.fromRGB(255, 215, 0), model)
-		crown.Material = Enum.Material.Neon
+		P("Crown", 2, 0.9, 2, 0, 1.2, 0, 255, 215, 0, nil, "Neon")
 	elseif kind == "PirateHat" then
-		charPart("PirateHat", Vector3.new(2.8, 0.5, 2), headPos + Vector3.new(0, 1.1, 0), Color3.fromRGB(40, 40, 45), model)
-		charPart("PirateSkull", Vector3.new(0.8, 0.8, 0.3), headPos + Vector3.new(0, 1.2, 1), Color3.fromRGB(255, 255, 255), model)
+		P("PirateHat", 2.8, 0.5, 2, 0, 1.1, 0, 40, 40, 45)
+		P("PirateSkull", 0.8, 0.8, 0.3, 0, 1.2, 1, 255, 255, 255)
 	elseif kind == "WizardHat" then
-		local cone = charPart("WizardHat", Vector3.new(2.2, 2.2, 2.2), headPos + Vector3.new(0, 2, 0), Color3.fromRGB(90, 60, 160), model)
-		cone.Shape = Enum.PartType.Ball
-		charPart("WizardBrim", Vector3.new(3, 0.3, 3), headPos + Vector3.new(0, 1.1, 0), Color3.fromRGB(90, 60, 160), model)
+		P("WizardHat", 2.2, 2.2, 2.2, 0, 2, 0, 90, 60, 160, "Ball")
+		P("WizardBrim", 3, 0.3, 3, 0, 1.1, 0, 90, 60, 160)
 	elseif kind == "Bowtie" then
-		charPart("Bowtie", Vector3.new(1.6, 0.6, 0.4), headPos + Vector3.new(0, -1.6, 1.3), Color3.fromRGB(220, 40, 60), model)
+		P("Bowtie", 1.6, 0.6, 0.4, 0, -1.6, 1.3, 220, 40, 60)
 	elseif kind == "Flower" then
-		local flower = charPart("Flower", Vector3.new(1, 1, 1), headPos + Vector3.new(1, 1, 0.6), Color3.fromRGB(255, 120, 200), model)
-		flower.Shape = Enum.PartType.Ball
+		P("Flower", 1, 1, 1, 1, 1, 0.6, 255, 120, 200, "Ball")
 	elseif kind == "Monocle" then
-		local mono = charPart("Monocle", Vector3.new(0.9, 0.9, 0.2), headPos + Vector3.new(0.6, 0.1, 1.1), Color3.fromRGB(255, 215, 0), model)
-		mono.Shape = Enum.PartType.Cylinder
-		mono.Rotation = Vector3.new(90, 0, 0)
+		P("Monocle", 0.9, 0.9, 0.2, 0.6, 0.1, 1.1, 255, 215, 0, "Cylinder", nil, 90)
 	elseif kind == "Sombrero" then
-		charPart("Sombrero", Vector3.new(3.4, 0.3, 3.4), headPos + Vector3.new(0, 1.1, 0), Color3.fromRGB(255, 200, 60), model)
-		charPart("SombreroTop", Vector3.new(1.4, 1, 1.4), headPos + Vector3.new(0, 1.6, 0), Color3.fromRGB(230, 170, 40), model)
+		P("Sombrero", 3.4, 0.3, 3.4, 0, 1.1, 0, 255, 200, 60)
+		P("SombreroTop", 1.4, 1, 1.4, 0, 1.6, 0, 230, 170, 40)
 	elseif kind == "Headphones" then
-		charPart("PhonesLeft", Vector3.new(0.5, 1.2, 1), headPos + Vector3.new(-1.2, 0.2, 0), Color3.fromRGB(30, 30, 35), model)
-		charPart("PhonesRight", Vector3.new(0.5, 1.2, 1), headPos + Vector3.new(1.2, 0.2, 0), Color3.fromRGB(30, 30, 35), model)
-		charPart("PhonesBand", Vector3.new(2.6, 0.4, 0.6), headPos + Vector3.new(0, 1.1, 0), Color3.fromRGB(30, 30, 35), model)
+		P("PhonesLeft", 0.5, 1.2, 1, -1.2, 0.2, 0, 30, 30, 35)
+		P("PhonesRight", 0.5, 1.2, 1, 1.2, 0.2, 0, 30, 30, 35)
+		P("PhonesBand", 2.6, 0.4, 0.6, 0, 1.1, 0, 30, 30, 35)
 	elseif kind == "Tie" then
-		charPart("Tie", Vector3.new(0.7, 1.8, 0.3), headPos + Vector3.new(0, -1.8, 1.4), Color3.fromRGB(200, 30, 50), model)
+		P("Tie", 0.7, 1.8, 0.3, 0, -1.8, 1.4, 200, 30, 50)
 	elseif kind == "GradCap" then
-		charPart("GradCap", Vector3.new(2.6, 0.3, 2.6), headPos + Vector3.new(0, 1.2, 0), Color3.fromRGB(30, 30, 35), model)
-		charPart("GradTassel", Vector3.new(0.2, 1, 0.2), headPos + Vector3.new(1.2, 0.8, 0), Color3.fromRGB(255, 215, 0), model)
+		P("GradCap", 2.6, 0.3, 2.6, 0, 1.2, 0, 30, 30, 35)
+		P("GradTassel", 0.2, 1, 0.2, 1.2, 0.8, 0, 255, 215, 0)
 	elseif kind == "Chilli" then
-		charPart("Chilli", Vector3.new(0.7, 1.6, 0.7), headPos + Vector3.new(1, 0.5, 0.8), Color3.fromRGB(220, 40, 30), model)
+		P("Chilli", 0.7, 1.6, 0.7, 1, 0.5, 0.8, 220, 40, 30)
 	elseif kind == "Cap" then
-		charPart("Cap", Vector3.new(2.2, 0.6, 2.2), headPos + Vector3.new(0, 1.1, 0), Color3.fromRGB(255, 60, 60), model)
+		P("Cap", 2.2, 0.6, 2.2, 0, 1.1, 0, 255, 60, 60)
 	elseif kind == "Sunglasses" then
-		charPart("Shades", Vector3.new(2, 0.5, 0.3), headPos + Vector3.new(0, 0.2, 1.1), Color3.fromRGB(20, 20, 25), model)
+		P("Shades", 2, 0.5, 0.3, 0, 0.2, 1.1, 20, 20, 25)
 	elseif kind == "Bandana" then
-		charPart("Bandana", Vector3.new(2.4, 0.6, 2.4), headPos + Vector3.new(0, 0.9, 0), Color3.fromRGB(200, 40, 60), model)
+		P("Bandana", 2.4, 0.6, 2.4, 0, 0.9, 0, 200, 40, 60)
 	elseif kind == "StinkLines" then
-		charPart("Stink1", Vector3.new(0.3, 1.2, 0.3), headPos + Vector3.new(-1, 1.6, 0), Color3.fromRGB(160, 220, 90), model)
-		charPart("Stink2", Vector3.new(0.3, 1.2, 0.3), headPos + Vector3.new(0, 1.8, 0), Color3.fromRGB(160, 220, 90), model)
-		charPart("Stink3", Vector3.new(0.3, 1.2, 0.3), headPos + Vector3.new(1, 1.6, 0), Color3.fromRGB(160, 220, 90), model)
+		P("Stink1", 0.3, 1.2, 0.3, -1, 1.6, 0, 160, 220, 90)
+		P("Stink2", 0.3, 1.2, 0.3, 0, 1.8, 0, 160, 220, 90)
+		P("Stink3", 0.3, 1.2, 0.3, 1, 1.6, 0, 160, 220, 90)
 	elseif kind == "SpikedCollar" then
-		charPart("Collar", Vector3.new(2.4, 0.5, 2.4), headPos + Vector3.new(0, -1.4, 0), Color3.fromRGB(220, 40, 50), model)
+		P("Collar", 2.4, 0.5, 2.4, 0, -1.4, 0, 220, 40, 50)
 	elseif kind == "Cape" then
-		charPart("Cape", Vector3.new(2.6, 2.6, 0.3), headPos + Vector3.new(0, -1.5, -1.4), Color3.fromRGB(180, 30, 60), model)
+		P("Cape", 2.6, 2.6, 0.3, 0, -1.5, -1.4, 180, 30, 60)
 	elseif kind == "Beret" then
-		local beret = charPart("Beret", Vector3.new(2.2, 0.6, 2.2), headPos + Vector3.new(0, 1.2, 0), Color3.fromRGB(200, 60, 80), model)
-		beret.Shape = Enum.PartType.Ball
+		P("Beret", 2.2, 0.6, 2.2, 0, 1.2, 0, 200, 60, 80, "Ball")
 	elseif kind == "Helmet" then
-		local helmet = charPart("Helmet", Vector3.new(2.4, 1.2, 2.4), headPos + Vector3.new(0, 1, 0), Color3.fromRGB(120, 140, 160), model)
-		helmet.Shape = Enum.PartType.Ball
+		P("Helmet", 2.4, 1.2, 2.4, 0, 1, 0, 120, 140, 160, "Ball")
 	elseif kind == "EyePatch" then
-		charPart("EyePatch", Vector3.new(0.9, 0.9, 0.2), headPos + Vector3.new(-0.6, 0.1, 1.1), Color3.fromRGB(20, 20, 25), model)
+		P("EyePatch", 0.9, 0.9, 0.2, -0.6, 0.1, 1.1, 20, 20, 25)
 	elseif kind == "Stethoscope" then
-		charPart("Stetho", Vector3.new(1.8, 0.4, 0.3), headPos + Vector3.new(0, -1.6, 1.3), Color3.fromRGB(40, 40, 45), model)
+		P("Stetho", 1.8, 0.4, 0.3, 0, -1.6, 1.3, 40, 40, 45)
 	elseif kind == "Glasses" then
-		charPart("GlassesLeft", Vector3.new(0.9, 0.9, 0.2), headPos + Vector3.new(-0.6, 0.1, 1.1), Color3.fromRGB(20, 20, 25), model)
-		charPart("GlassesRight", Vector3.new(0.9, 0.9, 0.2), headPos + Vector3.new(0.6, 0.1, 1.1), Color3.fromRGB(20, 20, 25), model)
+		P("GlassesLeft", 0.9, 0.9, 0.2, -0.6, 0.1, 1.1, 20, 20, 25)
+		P("GlassesRight", 0.9, 0.9, 0.2, 0.6, 0.1, 1.1, 20, 20, 25)
 	elseif kind == "CaptainHat" then
-		charPart("CaptainHat", Vector3.new(2.4, 0.5, 2.2), headPos + Vector3.new(0, 1.2, 0), Color3.fromRGB(255, 255, 255), model)
-		charPart("CaptainBadge", Vector3.new(0.7, 0.4, 0.2), headPos + Vector3.new(0, 1.2, 1.1), Color3.fromRGB(255, 215, 0), model)
+		P("CaptainHat", 2.4, 0.5, 2.2, 0, 1.2, 0, 255, 255, 255)
+		P("CaptainBadge", 0.7, 0.4, 0.2, 0, 1.2, 1.1, 255, 215, 0)
 	elseif kind == "Bucket" then
-		charPart("Bucket", Vector3.new(2, 1.6, 2), headPos + Vector3.new(0, 1.6, 0), Color3.fromRGB(200, 60, 60), model)
+		P("Bucket", 2, 1.6, 2, 0, 1.6, 0, 200, 60, 60)
 	elseif kind == "Salt" then
-		charPart("Salt1", Vector3.new(0.3, 0.3, 0.3), headPos + Vector3.new(-0.7, 1.3, 0.5), Color3.fromRGB(255, 255, 255), model)
-		charPart("Salt2", Vector3.new(0.3, 0.3, 0.3), headPos + Vector3.new(0.5, 1.4, -0.3), Color3.fromRGB(255, 255, 255), model)
+		P("Salt1", 0.3, 0.3, 0.3, -0.7, 1.3, 0.5, 255, 255, 255)
+		P("Salt2", 0.3, 0.3, 0.3, 0.5, 1.4, -0.3, 255, 255, 255)
 	elseif kind == "Moustache" then
-		charPart("Moustache", Vector3.new(1.8, 0.4, 0.3), headPos + Vector3.new(0, -0.4, 1.1), Color3.fromRGB(60, 40, 20), model)
+		P("Moustache", 1.8, 0.4, 0.3, 0, -0.4, 1.1, 60, 40, 20)
 	elseif kind == "NightCap" then
-		charPart("NightCap", Vector3.new(2, 1, 2), headPos + Vector3.new(0, 1.3, 0), Color3.fromRGB(90, 90, 160), model)
+		P("NightCap", 2, 1, 2, 0, 1.3, 0, 90, 90, 160)
 	elseif kind == "Hood" then
-		local hood = charPart("Hood", Vector3.new(2.6, 1.6, 2.6), headPos + Vector3.new(0, 0.8, 0), Color3.fromRGB(50, 50, 65), model)
-		hood.Shape = Enum.PartType.Ball
+		P("Hood", 2.6, 1.6, 2.6, 0, 0.8, 0, 50, 50, 65, "Ball")
 	elseif kind == "RainbowHalo" then
-		local halo = charPart("Halo", Vector3.new(3, 0.3, 3), headPos + Vector3.new(0, 2.2, 0), Color3.fromRGB(255, 120, 220), model)
-		halo.Material = Enum.Material.Neon
+		P("Halo", 3, 0.3, 3, 0, 2.2, 0, 255, 120, 220, nil, "Neon")
 	end
 end
 
@@ -122,17 +133,17 @@ local function buildNameLabel(model, head, def, mutation, incomePerSec)
 	gui.Name = "BrainrotLabel"
 	gui.Adornee = head
 	gui.Size = UDim2.fromOffset(220, 84)
-	gui.StudsOffset = Vector3.new(0, 3.4, 0)
+	gui.StudsOffset = V3(0, 3.4, 0)
 	gui.AlwaysOnTop = true
 	gui.Parent = model
 
 	local nameLabel = Instance.new("TextLabel")
 	nameLabel.Name = "NameLabel"
 	nameLabel.Size = UDim2.new(1, 0, 0.42, 0)
-	nameLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+	nameLabel.BackgroundColor3 = C(20, 20, 30)
 	nameLabel.BackgroundTransparency = 0.25
 	nameLabel.Text = def.name
-	nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	nameLabel.TextColor3 = C(255, 255, 255)
 	nameLabel.TextScaled = true
 	nameLabel.Font = Enum.Font.GothamBlack
 	nameLabel.Parent = gui
@@ -142,7 +153,7 @@ local function buildNameLabel(model, head, def, mutation, incomePerSec)
 	rarityLabel.Name = "RarityLabel"
 	rarityLabel.Position = UDim2.new(0, 0, 0.42, 0)
 	rarityLabel.Size = UDim2.new(0.5, 0, 0.3, 0)
-	rarityLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+	rarityLabel.BackgroundColor3 = C(20, 20, 30)
 	rarityLabel.BackgroundTransparency = 0.25
 	local mutationText = mutation.name ~= "Normal" and (" " .. mutation.name) or ""
 	rarityLabel.Text = def.rarity .. mutationText
@@ -155,10 +166,10 @@ local function buildNameLabel(model, head, def, mutation, incomePerSec)
 	incomeLabel.Name = "IncomeLabel"
 	incomeLabel.Position = UDim2.new(0.5, 0, 0.42, 0)
 	incomeLabel.Size = UDim2.new(0.5, 0, 0.3, 0)
-	incomeLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+	incomeLabel.BackgroundColor3 = C(20, 20, 30)
 	incomeLabel.BackgroundTransparency = 0.25
 	incomeLabel.Text = FormatMoney.formatRate(incomePerSec)
-	incomeLabel.TextColor3 = Color3.fromRGB(120, 255, 140)
+	incomeLabel.TextColor3 = C(120, 255, 140)
 	incomeLabel.TextScaled = true
 	incomeLabel.Font = Enum.Font.GothamBlack
 	incomeLabel.Parent = gui
@@ -167,10 +178,10 @@ local function buildNameLabel(model, head, def, mutation, incomePerSec)
 	costLabel.Name = "CostLabel"
 	costLabel.Position = UDim2.new(0, 0, 0.72, 0)
 	costLabel.Size = UDim2.new(1, 0, 0.28, 0)
-	costLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+	costLabel.BackgroundColor3 = C(20, 20, 30)
 	costLabel.BackgroundTransparency = 0.25
 	costLabel.Text = "COST " .. FormatMoney.format(def.cost)
-	costLabel.TextColor3 = Color3.fromRGB(255, 220, 90)
+	costLabel.TextColor3 = C(255, 220, 90)
 	costLabel.TextScaled = true
 	costLabel.Font = Enum.Font.GothamBold
 	costLabel.Parent = gui
@@ -183,33 +194,33 @@ function BrainrotFactory.buildBrainrotModel(def, mutation, incomePerSec, positio
 	local model = Instance.new("Model")
 	model.Name = "Brainrot_" .. def.id .. "_" .. def.name:gsub("%W", "")
 
-	local body = charPart("Body", Vector3.new(3, 3, 3), position, def.body, model)
+	local body = charPart("Body", V3(3, 3, 3), position, def.body, model)
 	body.Shape = Enum.PartType.Ball
 	if mutation.name == "Golden" then
 		body.Material = Enum.Material.Neon
-		body.Color = Color3.fromRGB(255, 215, 0)
+		body.Color = C(255, 215, 0)
 	elseif mutation.name == "Diamond" then
 		body.Material = Enum.Material.Glass
-		body.Color = Color3.fromRGB(160, 230, 255)
+		body.Color = C(160, 230, 255)
 	elseif mutation.name == "Rainbow" then
 		body.Material = Enum.Material.Neon
-		body.Color = Color3.fromRGB(255, 120, 220)
+		body.Color = C(255, 120, 220)
 	elseif mutation.name == "Void" then
 		body.Material = Enum.Material.Neon
-		body.Color = Color3.fromRGB(120, 60, 220)
+		body.Color = C(120, 60, 220)
 	end
 	model.PrimaryPart = body
 
-	local headPos = position + Vector3.new(0, 2.4, 0)
-	local head = charPart("Head", Vector3.new(2.2, 2.2, 2.2), headPos, def.head, model)
+	local headPos = position + V3(0, 2.4, 0)
+	local head = charPart("Head", V3(2.2, 2.2, 2.2), headPos, def.head, model)
 	head.Shape = Enum.PartType.Ball
 
 	-- Eyes on the front of the head.
-	charPart("EyeLeft", Vector3.new(0.5, 0.7, 0.3), headPos + Vector3.new(-0.55, 0.25, 1.05), Color3.fromRGB(20, 20, 25), model)
-	charPart("EyeRight", Vector3.new(0.5, 0.7, 0.3), headPos + Vector3.new(0.55, 0.25, 1.05), Color3.fromRGB(20, 20, 25), model)
+	charPart("EyeLeft", V3(0.5, 0.7, 0.3), headPos + V3(-0.55, 0.25, 1.05), C(20, 20, 25), model)
+	charPart("EyeRight", V3(0.5, 0.7, 0.3), headPos + V3(0.55, 0.25, 1.05), C(20, 20, 25), model)
 	-- Little feet so it reads as a walking character.
-	charPart("FootLeft", Vector3.new(1, 0.6, 1.4), position + Vector3.new(-0.8, -1.7, 0.2), Color3.fromRGB(40, 40, 45), model)
-	charPart("FootRight", Vector3.new(1, 0.6, 1.4), position + Vector3.new(0.8, -1.7, 0.2), Color3.fromRGB(40, 40, 45), model)
+	charPart("FootLeft", V3(1, 0.6, 1.4), position + V3(-0.8, -1.7, 0.2), C(40, 40, 45), model)
+	charPart("FootRight", V3(1, 0.6, 1.4), position + V3(0.8, -1.7, 0.2), C(40, 40, 45), model)
 
 	buildAccessory(def.accessory, model, headPos, def.body)
 	buildNameLabel(model, head, def, mutation, incomePerSec)

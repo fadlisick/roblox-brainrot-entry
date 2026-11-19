@@ -3,6 +3,7 @@
 -- screen shake and the water tint while a wave is running, plus a gentle
 -- bobbing pulse on the canal water so the lagoon feels alive.
 
+local V3 = Vector3.new
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -27,7 +28,7 @@ local function startCameraShake()
 		if not cam then
 			return
 		end
-		local offset = Vector3.new(
+		local offset = V3(
 			(math.random() - 0.5) * 0.6,
 			(math.random() - 0.5) * 0.6,
 			0

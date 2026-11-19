@@ -2,6 +2,8 @@
 -- wires every service together, claims bases for joining players, hands out
 -- the Slap tool, and starts the conveyor, income and tsunami loops.
 
+local C = Color3.fromRGB
+local V3 = Vector3.new
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -9,7 +11,6 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local GameSettings = require(Shared:WaitForChild("GameSettings"))
 
 local WorldBuilder = require(script:WaitForChild("WorldBuilder"))
-local BrainrotFactory = require(script:WaitForChild("BrainrotFactory"))
 local PlayerDataService = require(script:WaitForChild("PlayerDataService"))
 local BaseService = require(script:WaitForChild("BaseService"))
 local ConveyorService = require(script:WaitForChild("ConveyorService"))
@@ -66,8 +67,8 @@ local function giveSlapTool(player)
 	tool.CanBeDropped = false
 	local handle = Instance.new("Part")
 	handle.Name = "Handle"
-	handle.Size = Vector3.new(1, 0.4, 3)
-	handle.Color = Color3.fromRGB(255, 220, 90)
+	handle.Size = V3(1, 0.4, 3)
+	handle.Color = C(255, 220, 90)
 	handle.Material = Enum.Material.SmoothPlastic
 	handle.Parent = tool
 	tool.Activated:Connect(function()

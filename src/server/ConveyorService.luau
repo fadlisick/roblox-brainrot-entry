@@ -2,6 +2,7 @@
 -- along the water. Players buy one with its ProximityPrompt; it then walks to
 -- their base. Unsold brainrots despawn at the east end.
 
+local V3 = Vector3.new
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
@@ -29,7 +30,7 @@ local function walkModelTo(model, targetPos, speed)
 		end
 		local step = math.min(distance, speed * 0.05)
 		local newPos = current + delta.Unit * step
-		model:PivotTo(CFrame.new(newPos, newPos + Vector3.new(1, 0, 0)))
+		model:PivotTo(CFrame.new(newPos, newPos + V3(1, 0, 0)))
 		task.wait(0.05)
 	end
 	return false
@@ -44,7 +45,7 @@ local function spawnBrainrotOnConveyor()
 	local income = def.income * mutation.mult
 	uidCounter += 1
 	local uid = uidCounter
-	local startPos = Vector3.new(GameSettings.CONVEYOR_START_X, GameSettings.CONVEYOR_Y, GameSettings.CONVEYOR_Z)
+	local startPos = V3(GameSettings.CONVEYOR_START_X, GameSettings.CONVEYOR_Y, GameSettings.CONVEYOR_Z)
 	local model = BrainrotFactory.buildBrainrotModel(def, mutation, income, startPos)
 	model.Parent = workspace
 
@@ -73,7 +74,7 @@ local function spawnBrainrotOnConveyor()
 
 	-- Walk east along the canal until bought, despawned, or at the end.
 	task.spawn(function()
-		local endPos = Vector3.new(GameSettings.CONVEYOR_END_X, GameSettings.CONVEYOR_Y, GameSettings.CONVEYOR_Z)
+		local endPos = V3(GameSettings.CONVEYOR_END_X, GameSettings.CONVEYOR_Y, GameSettings.CONVEYOR_Z)
 		local arrived = walkModelTo(model, endPos, GameSettings.CONVEYOR_WALK_SPEED)
 		if not arrived then
 			return -- bought mid-walk; the buyer owns the walk now
@@ -141,8 +142,11 @@ function ConveyorService.buyBrainrotFromConveyor(player, uid)
 		if pad then
 			walkModelTo(record.model, pad, GameSettings.CONVEYOR_WALK_SPEED * 2)
 		end
-		if record.model.Parent then
+		-- The buyer may have left mid-walk; only place it if they are still here.
+		if record.model.Parent and playerDataService.getState(player) then
 			baseService.placeBrainrotOnBase(player, owned)
+		elseif record.model.Parent then
+			record.model:Destroy()
 		end
 	end)
 	return true, "bought " .. record.def.name

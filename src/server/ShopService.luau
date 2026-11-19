@@ -24,19 +24,14 @@ local function notify(player, message)
 end
 
 -- Sell an owned brainrot for half its cost. Args: uid.
+-- The model is destroyed first, while the record still names it.
 local function onSellBrainrot(player, uid)
+	local record = playerDataService.findOwnedByUid(player, uid)
+	if record and record.model and record.model.Parent then
+		record.model:Destroy()
+	end
 	local refund = playerDataService.sellBrainrot(player, uid)
 	if refund then
-		-- Destroy its model on the base.
-		local state = playerDataService.getState(player)
-		if state then
-			-- The record is gone from state; find the model by uid in the world.
-			for _, model in ipairs(workspace:GetChildren()) do
-				if model:IsA("Model") and model:GetAttribute("SoldUid") == uid then
-					model:Destroy()
-				end
-			end
-		end
 		notify(player, "Sold for $" .. refund .. "!")
 	else
 		notify(player, "Could not sell that brainrot.")

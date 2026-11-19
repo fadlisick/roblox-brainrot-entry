@@ -5,6 +5,7 @@
 -- brainrots with owned/discovered state; the shop panel with upgrades, extra
 -- slots and selling. All money comes from the server's ClientSync snapshots.
 
+local C = Color3.fromRGB
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -50,9 +51,9 @@ local function makeButton(name, parent, text, size, position)
 	button.Name = name
 	button.Size = size
 	button.Position = position
-	button.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
+	button.BackgroundColor3 = C(35, 35, 55)
 	button.Text = text
-	button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	button.TextColor3 = C(255, 255, 255)
 	button.TextSize = 20
 	button.Font = Enum.Font.GothamBold
 	button.BorderSizePixel = 0
@@ -77,22 +78,22 @@ local function buildTopBar()
 	bar.AnchorPoint = Vector2.new(0.5, 0)
 	bar.Position = UDim2.new(0.5, 0, 0, 52)
 	bar.Size = UDim2.fromOffset(560, 56)
-	bar.BackgroundColor3 = Color3.fromRGB(20, 20, 32)
+	bar.BackgroundColor3 = C(20, 20, 32)
 	bar.BackgroundTransparency = 0.15
 	bar.BorderSizePixel = 0
 	bar.Parent = gui
 
-	moneyLabel = makeLabel("MoneyLabel", bar, "$100", 28, Color3.fromRGB(120, 255, 140))
+	moneyLabel = makeLabel("MoneyLabel", bar, "$100", 28, C(120, 255, 140))
 	moneyLabel.Position = UDim2.new(0.03, 0, 0, 0)
 	moneyLabel.Size = UDim2.new(0.4, 0, 1, 0)
 	moneyLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-	incomeLabel = makeLabel("IncomeLabel", bar, "$0/s", 22, Color3.fromRGB(255, 220, 90))
+	incomeLabel = makeLabel("IncomeLabel", bar, "$0/s", 22, C(255, 220, 90))
 	incomeLabel.Position = UDim2.new(0.43, 0, 0, 0)
 	incomeLabel.Size = UDim2.new(0.3, 0, 1, 0)
 	incomeLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-	rebirthLabel = makeLabel("RebirthLabel", bar, "Rebirth 0 (x1)", 22, Color3.fromRGB(150, 220, 255))
+	rebirthLabel = makeLabel("RebirthLabel", bar, "Rebirth 0 (x1)", 22, C(150, 220, 255))
 	rebirthLabel.Position = UDim2.new(0.73, 0, 0, 0)
 	rebirthLabel.Size = UDim2.new(0.24, 0, 1, 0)
 	rebirthLabel.TextXAlignment = Enum.TextXAlignment.Right
@@ -133,7 +134,7 @@ end
 
 -- Build the base-lock status label under the buttons.
 local function buildLockLabel()
-	lockLabel = makeLabel("LockLabel", gui, "", 18, Color3.fromRGB(255, 140, 140))
+	lockLabel = makeLabel("LockLabel", gui, "", 18, C(255, 140, 140))
 	lockLabel.AnchorPoint = Vector2.new(0.5, 0)
 	lockLabel.Position = UDim2.new(0.5, 0, 0, 168)
 	lockLabel.Size = UDim2.fromOffset(560, 24)
@@ -147,24 +148,24 @@ local function buildWaveBanner()
 	waveBanner.AnchorPoint = Vector2.new(0.5, 0)
 	waveBanner.Position = UDim2.new(0.5, 0, 0, 200)
 	waveBanner.Size = UDim2.fromOffset(640, 64)
-	waveBanner.BackgroundColor3 = Color3.fromRGB(20, 80, 180)
+	waveBanner.BackgroundColor3 = C(20, 80, 180)
 	waveBanner.BackgroundTransparency = 0.1
 	waveBanner.BorderSizePixel = 0
 	waveBanner.Visible = false
 	waveBanner.Parent = gui
 
-	waveBannerLabel = makeLabel("WaveBannerLabel", waveBanner, "TSUNAMI INCOMING!", 30, Color3.fromRGB(255, 255, 255))
+	waveBannerLabel = makeLabel("WaveBannerLabel", waveBanner, "TSUNAMI INCOMING!", 30, C(255, 255, 255))
 	waveBannerLabel.Size = UDim2.fromScale(1, 1)
 	waveBannerLabel.Font = Enum.Font.GothamBlack
 end
 
 -- Build the toast label at the bottom of the screen.
 local function buildToast()
-	toastLabel = makeLabel("ToastLabel", gui, "", 20, Color3.fromRGB(255, 255, 255))
+	toastLabel = makeLabel("ToastLabel", gui, "", 20, C(255, 255, 255))
 	toastLabel.AnchorPoint = Vector2.new(0.5, 1)
 	toastLabel.Position = UDim2.new(0.5, 0, 1, -24)
 	toastLabel.Size = UDim2.fromOffset(700, 32)
-	toastLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 32)
+	toastLabel.BackgroundColor3 = C(20, 20, 32)
 	toastLabel.BackgroundTransparency = 0.2
 	toastLabel.Visible = false
 end
@@ -176,11 +177,11 @@ local function buildIndexPanel()
 	indexPanel.AnchorPoint = Vector2.new(0.5, 0.5)
 	indexPanel.Position = UDim2.fromScale(0.5, 0.5)
 	indexPanel.Size = UDim2.fromOffset(640, 460)
-	indexPanel.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
+	indexPanel.BackgroundColor3 = C(25, 25, 40)
 	indexPanel.Visible = false
 	indexPanel.Parent = gui
 
-	local title = makeLabel("IndexTitle", indexPanel, "BRAINROT INDEX — 48 CHARACTERS", 24, Color3.fromRGB(255, 255, 255))
+	local title = makeLabel("IndexTitle", indexPanel, "BRAINROT INDEX — 48 CHARACTERS", 24, C(255, 255, 255))
 	title.Position = UDim2.new(0, 0, 0, 8)
 	title.Size = UDim2.new(1, 0, 0, 32)
 
@@ -213,11 +214,11 @@ local function buildShopPanel()
 	shopPanel.AnchorPoint = Vector2.new(0.5, 0.5)
 	shopPanel.Position = UDim2.fromScale(0.5, 0.5)
 	shopPanel.Size = UDim2.fromOffset(640, 460)
-	shopPanel.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
+	shopPanel.BackgroundColor3 = C(25, 25, 40)
 	shopPanel.Visible = false
 	shopPanel.Parent = gui
 
-	local title = makeLabel("ShopTitle", shopPanel, "SHOP — UPGRADES & SELL", 24, Color3.fromRGB(255, 255, 255))
+	local title = makeLabel("ShopTitle", shopPanel, "SHOP — UPGRADES & SELL", 24, C(255, 255, 255))
 	title.Position = UDim2.new(0, 0, 0, 8)
 	title.Size = UDim2.new(1, 0, 0, 32)
 
@@ -246,11 +247,11 @@ end
 local function addShopRow(text, buttonText, onClick)
 	local row = Instance.new("Frame")
 	row.Size = UDim2.new(1, 0, 0, 44)
-	row.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+	row.BackgroundColor3 = C(40, 40, 60)
 	row.BorderSizePixel = 0
 	row.Parent = shopList
 
-	local label = makeLabel("RowLabel", row, text, 17, Color3.fromRGB(255, 255, 255))
+	local label = makeLabel("RowLabel", row, text, 17, C(255, 255, 255))
 	label.Position = UDim2.new(0, 10, 0, 0)
 	label.Size = UDim2.new(0.68, -10, 1, 0)
 	label.TextXAlignment = Enum.TextXAlignment.Left
@@ -280,25 +281,25 @@ function InterfaceController.refreshIndexPanel()
 	end
 	for _, def in ipairs(BrainrotCatalog.BRAINROTS) do
 		local cell = Instance.new("Frame")
-		cell.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+		cell.BackgroundColor3 = C(40, 40, 60)
 		cell.BorderSizePixel = 0
 		cell.Parent = indexGrid
 
 		local rarityInfo = BrainrotCatalog.RARITIES[def.rarity]
-		local nameLabel = makeLabel("CellName", cell, def.name, 14, Color3.fromRGB(255, 255, 255))
+		local nameLabel = makeLabel("CellName", cell, def.name, 14, C(255, 255, 255))
 		nameLabel.Position = UDim2.new(0, 4, 0, 4)
 		nameLabel.Size = UDim2.new(1, -8, 0, 34)
 		nameLabel.TextWrapped = true
 		nameLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 		local stateText = "???"
-		local stateColor = Color3.fromRGB(150, 150, 160)
+		local stateColor = C(150, 150, 160)
 		if ownedIds[def.id] then
 			stateText = "OWNED"
-			stateColor = Color3.fromRGB(120, 255, 140)
+			stateColor = C(120, 255, 140)
 		elseif discovered[tostring(def.id)] or discovered[def.id] then
 			stateText = "SEEN"
-			stateColor = Color3.fromRGB(255, 220, 90)
+			stateColor = C(255, 220, 90)
 		end
 		local rarityLabel = makeLabel("CellRarity", cell, def.rarity .. " — " .. stateText, 13, rarityInfo.color)
 		rarityLabel.Position = UDim2.new(0, 4, 0, 40)
@@ -365,13 +366,13 @@ local function applySnapshot(snapshot)
 	rebirthLabel.Text = "Rebirth " .. snapshot.rebirths .. " (x" .. snapshot.rebirthMultiplier .. ")"
 	if snapshot.lockSecondsLeft > 0 then
 		lockLabel.Text = "BASE LOCKED — " .. snapshot.lockSecondsLeft .. "s left"
-		lockLabel.TextColor3 = Color3.fromRGB(120, 255, 140)
+		lockLabel.TextColor3 = C(120, 255, 140)
 	elseif snapshot.lockCooldownLeft > 0 then
 		lockLabel.Text = "Lock recharging — " .. snapshot.lockCooldownLeft .. "s"
-		lockLabel.TextColor3 = Color3.fromRGB(255, 200, 90)
+		lockLabel.TextColor3 = C(255, 200, 90)
 	else
 		lockLabel.Text = "Base UNLOCKED — anyone can steal! Buy a lock!"
-		lockLabel.TextColor3 = Color3.fromRGB(255, 140, 140)
+		lockLabel.TextColor3 = C(255, 140, 140)
 	end
 	if indexPanel.Visible then
 		InterfaceController.refreshIndexPanel()

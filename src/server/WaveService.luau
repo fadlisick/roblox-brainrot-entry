@@ -3,6 +3,8 @@
 -- own base is swept back to spawn and drops any carried brainrot.
 -- triggerTsunamiForTour is the TOUR.json entry point for reviewers.
 
+local C = Color3.fromRGB
+local V3 = Vector3.new
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -33,9 +35,9 @@ end
 local function buildWaveWall()
 	waveWall = Instance.new("Part")
 	waveWall.Name = "TsunamiWall"
-	waveWall.Size = Vector3.new(6, GameSettings.WAVE_HEIGHT, 150)
-	waveWall.Position = Vector3.new(-130, GameSettings.WAVE_HEIGHT / 2, 0)
-	waveWall.Color = Color3.fromRGB(40, 140, 255)
+	waveWall.Size = V3(6, GameSettings.WAVE_HEIGHT, 150)
+	waveWall.Position = V3(-130, GameSettings.WAVE_HEIGHT / 2, 0)
+	waveWall.Color = C(40, 140, 255)
 	waveWall.Material = Enum.Material.Water
 	waveWall.Transparency = 0.25
 	waveWall.Anchored = true
@@ -53,7 +55,7 @@ local function sweepWaveAcrossMap()
 			return
 		end
 		local x = startX + (endX - startX) * (step / steps)
-		waveWall.Position = Vector3.new(x, GameSettings.WAVE_HEIGHT / 2, 0)
+		waveWall.Position = V3(x, GameSettings.WAVE_HEIGHT / 2, 0)
 		-- Anyone near the wall front who is outside their base gets swept.
 		for _, player in ipairs(Players:GetPlayers()) do
 			local character = player.Character
@@ -104,7 +106,7 @@ function WaveService.runTsunami()
 	sweepWaveAcrossMap()
 	broadcastWave("end", 0)
 	if waveWall then
-		waveWall.Position = Vector3.new(-130, GameSettings.WAVE_HEIGHT / 2, 0)
+		waveWall.Position = V3(-130, GameSettings.WAVE_HEIGHT / 2, 0)
 	end
 	waveActive = false
 	return true

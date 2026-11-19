@@ -2,6 +2,7 @@
 -- Economy, timers, world layout and progression costs. Services read these;
 -- nothing else hard-codes a price or a timer.
 
+local V3 = Vector3.new
 local GameSettings = {}
 
 -- Economy
@@ -51,18 +52,18 @@ GameSettings.UPGRADES = {
 
 -- World layout (studs). Bases sit north (z = -42) and south (z = +42).
 GameSettings.BASE_POSITIONS = {
-	Vector3.new(-75, 0, -42),
-	Vector3.new(-25, 0, -42),
-	Vector3.new(25, 0, -42),
-	Vector3.new(75, 0, -42),
-	Vector3.new(-75, 0, 42),
-	Vector3.new(-25, 0, 42),
-	Vector3.new(25, 0, 42),
-	Vector3.new(75, 0, 42),
+	V3(-75, 0, -42),
+	V3(-25, 0, -42),
+	V3(25, 0, -42),
+	V3(75, 0, -42),
+	V3(-75, 0, 42),
+	V3(-25, 0, 42),
+	V3(25, 0, 42),
+	V3(75, 0, 42),
 }
-GameSettings.BASE_SIZE = Vector3.new(30, 1, 26)
-GameSettings.SPAWN_POSITION = Vector3.new(-108, 4, 26)
-GameSettings.ISLAND_SIZE = Vector3.new(240, 2, 140)
-GameSettings.CANAL_SIZE = Vector3.new(210, 1, 16)
+GameSettings.BASE_SIZE = V3(30, 1, 26)
+GameSettings.SPAWN_POSITION = V3(-108, 4, 26)
+GameSettings.ISLAND_SIZE = V3(240, 2, 140)
+GameSettings.CANAL_SIZE = V3(210, 1, 16)
 
 return GameSettings

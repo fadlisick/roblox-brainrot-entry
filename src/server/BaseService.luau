@@ -2,6 +2,7 @@
 -- owns the base lock, and frees the base when a player leaves.
 -- A base is one of the 8 coloured plots WorldBuilder built around the canal.
 
+local V3 = Vector3.new
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -60,7 +61,7 @@ function BaseService.getSlotPadWorldPosition(baseIndex, slotIndex)
 	if not pad then
 		return nil
 	end
-	return pad.Position + Vector3.new(0, 2.2, 0)
+	return pad.Position + V3(0, 2.2, 0)
 end
 
 -- Place an owned brainrot on its slot: park it, add the steal prompt.

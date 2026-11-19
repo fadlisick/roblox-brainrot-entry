@@ -3,17 +3,19 @@
 -- 8 coloured player bases with walls and slot pads, spawn area, trees, rocks,
 -- lamps, a big BRAINROT BOG sign and a leaderboard board. A few hundred anchored parts.
 
+local C = Color3.fromRGB
+local V3 = Vector3.new
 local WorldBuilder = {}
 
 local BASE_COLORS = {
-	Color3.fromRGB(255, 90, 90),
-	Color3.fromRGB(90, 160, 255),
-	Color3.fromRGB(120, 220, 120),
-	Color3.fromRGB(255, 200, 60),
-	Color3.fromRGB(200, 120, 255),
-	Color3.fromRGB(255, 140, 200),
-	Color3.fromRGB(90, 220, 210),
-	Color3.fromRGB(255, 140, 70),
+	C(255, 90, 90),
+	C(90, 160, 255),
+	C(120, 220, 120),
+	C(255, 200, 60),
+	C(200, 120, 255),
+	C(255, 140, 200),
+	C(90, 220, 210),
+	C(255, 140, 70),
 }
 
 local baseModels = {}
@@ -40,39 +42,41 @@ local function buildBase(index, centre, color)
 	folder.Name = "Base" .. index
 	folder.Parent = workspace
 
-	makePart("Platform", "Part", Vector3.new(30, 1, 26), centre + Vector3.new(0, 0.5, 0), color, Enum.Material.SmoothPlastic, folder)
-	makePart("Trim", "Part", Vector3.new(30.6, 0.4, 26.6), centre + Vector3.new(0, 0.2, 0), Color3.fromRGB(255, 255, 255), Enum.Material.Neon, folder)
+	makePart("Platform", "Part", V3(30, 1, 26), centre + V3(0, 0.5, 0), color, Enum.Material.SmoothPlastic, folder)
+	makePart("Trim", "Part", V3(30.6, 0.4, 26.6), centre + V3(0, 0.2, 0), C(255, 255, 255), Enum.Material.Neon, folder)
 	-- Low walls on three sides; the canal side stays open so brainrots walk in.
-	makePart("WallBack", "Part", Vector3.new(30, 4, 1), centre + Vector3.new(0, 2.5, -12.5), color, Enum.Material.SmoothPlastic, folder)
-	local sideZ = centre.Z > 0 and -1 or 1
-	makePart("WallLeft", "Part", Vector3.new(1, 4, 26), centre + Vector3.new(-14.5, 2.5, 0), color, Enum.Material.SmoothPlastic, folder)
-	makePart("WallRight", "Part", Vector3.new(1, 4, 26), centre + Vector3.new(14.5, 2.5, 0), color, Enum.Material.SmoothPlastic, folder)
+	local backZ = centre.Z > 0 and 12.5 or -12.5
+	local gateZ = -backZ
+	makePart("WallBack", "Part", V3(30, 4, 1), centre + V3(0, 2.5, backZ), color, Enum.Material.SmoothPlastic, folder)
+	makePart("WallLeft", "Part", V3(1, 4, 26), centre + V3(-14.5, 2.5, 0), color, Enum.Material.SmoothPlastic, folder)
+	makePart("WallRight", "Part", V3(1, 4, 26), centre + V3(14.5, 2.5, 0), color, Enum.Material.SmoothPlastic, folder)
 	-- Gate posts on the open canal side.
-	makePart("GateLeft", "Part", Vector3.new(1.5, 5, 1.5), centre + Vector3.new(-14, 3, 12.5 * sideZ), Color3.fromRGB(255, 220, 90), Enum.Material.Neon, folder)
-	makePart("GateRight", "Part", Vector3.new(1.5, 5, 1.5), centre + Vector3.new(14, 3, 12.5 * sideZ), Color3.fromRGB(255, 220, 90), Enum.Material.Neon, folder)
+	makePart("GateLeft", "Part", V3(1.5, 5, 1.5), centre + V3(-14, 3, gateZ), C(255, 220, 90), Enum.Material.Neon, folder)
+	makePart("GateRight", "Part", V3(1.5, 5, 1.5), centre + V3(14, 3, gateZ), C(255, 220, 90), Enum.Material.Neon, folder)
 
 	-- Owner sign above the back wall.
-	local sign = makePart("OwnerSign", "Part", Vector3.new(18, 4, 0.6), centre + Vector3.new(0, 6.5, -12.5), Color3.fromRGB(30, 30, 45), Enum.Material.SmoothPlastic, folder)
+	local sign = makePart("OwnerSign", "Part", V3(18, 4, 0.6), centre + V3(0, 6.5, backZ), C(30, 30, 45), Enum.Material.SmoothPlastic, folder)
 	local gui = Instance.new("SurfaceGui")
-	gui.Face = Enum.NormalId.Front
+	-- Face the sign toward the canal so players walking it can read it.
+	gui.Face = centre.Z > 0 and Enum.NormalId.Back or Enum.NormalId.Front
 	gui.Parent = sign
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
 	label.Text = "BASE " .. index .. " — EMPTY"
-	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.TextColor3 = C(255, 255, 255)
 	label.TextScaled = true
 	label.Font = Enum.Font.GothamBlack
 	label.Parent = gui
-	folder:SetAttribute("OwnerSignText", label)
+	folder:SetAttribute("OwnerLabel", "Base " .. index)
 
 	-- Slot pads: 2 rows x 3 columns, then extra rows as slots are bought.
 	local pads = {}
 	for slot = 1, 12 do
 		local col = (slot - 1) % 3
 		local row = math.floor((slot - 1) / 3)
-		local padPos = centre + Vector3.new((col - 1) * 8, 1.15, -6 + row * 6)
-		local pad = makePart("SlotPad" .. slot, "Part", Vector3.new(6, 0.3, 5), padPos, Color3.fromRGB(255, 255, 255), Enum.Material.Neon, folder)
+		local padPos = centre + V3((col - 1) * 8, 1.15, -6 + row * 6)
+		local pad = makePart("SlotPad" .. slot, "Part", V3(6, 0.3, 5), padPos, C(255, 255, 255), Enum.Material.Neon, folder)
 		pad.Transparency = 0.55
 		pad.CanCollide = false
 		pad:SetAttribute("SlotIndex", slot)
@@ -85,19 +89,19 @@ end
 
 -- Build a swamp tree: trunk cylinder + two leaf spheres.
 local function buildTree(parent, position, scale)
-	local trunk = makePart("Trunk", "Part", Vector3.new(1.6 * scale, 7 * scale, 1.6 * scale), position + Vector3.new(0, 3.5 * scale, 0), Color3.fromRGB(120, 80, 40), Enum.Material.Wood, parent)
+	local trunk = makePart("Trunk", "Part", V3(1.6 * scale, 7 * scale, 1.6 * scale), position + V3(0, 3.5 * scale, 0), C(120, 80, 40), Enum.Material.Wood, parent)
 	trunk.Shape = Enum.PartType.Cylinder
-	trunk.Rotation = Vector3.new(0, 0, 90)
-	local leaves = makePart("Leaves", "Part", Vector3.new(6 * scale, 5 * scale, 6 * scale), position + Vector3.new(0, 8.5 * scale, 0), Color3.fromRGB(40, 160, 70), Enum.Material.Grass, parent)
+	trunk.Rotation = V3(0, 0, 90)
+	local leaves = makePart("Leaves", "Part", V3(6 * scale, 5 * scale, 6 * scale), position + V3(0, 8.5 * scale, 0), C(40, 160, 70), Enum.Material.Grass, parent)
 	leaves.Shape = Enum.PartType.Ball
-	local leaves2 = makePart("Leaves2", "Part", Vector3.new(4 * scale, 3.5 * scale, 4 * scale), position + Vector3.new(2 * scale, 10.5 * scale, 0), Color3.fromRGB(70, 200, 90), Enum.Material.Grass, parent)
+	local leaves2 = makePart("Leaves2", "Part", V3(4 * scale, 3.5 * scale, 4 * scale), position + V3(2 * scale, 10.5 * scale, 0), C(70, 200, 90), Enum.Material.Grass, parent)
 	leaves2.Shape = Enum.PartType.Ball
 end
 
 -- Build a lamp post with a glowing neon head.
 local function buildLamp(parent, position)
-	makePart("LampPost", "Part", Vector3.new(0.7, 7, 0.7), position + Vector3.new(0, 3.5, 0), Color3.fromRGB(60, 60, 70), Enum.Material.Metal, parent)
-	local head = makePart("LampHead", "Part", Vector3.new(2, 1.4, 2), position + Vector3.new(0, 7.4, 0), Color3.fromRGB(255, 220, 130), Enum.Material.Neon, parent)
+	makePart("LampPost", "Part", V3(0.7, 7, 0.7), position + V3(0, 3.5, 0), C(60, 60, 70), Enum.Material.Metal, parent)
+	local head = makePart("LampHead", "Part", V3(2, 1.4, 2), position + V3(0, 7.4, 0), C(255, 220, 130), Enum.Material.Neon, parent)
 	head.Shape = Enum.PartType.Ball
 end
 
@@ -108,22 +112,22 @@ function WorldBuilder.buildWorld()
 	world.Parent = workspace
 
 	-- Island baseplate and the water canal through its middle.
-	makePart("Island", "Part", Vector3.new(240, 2, 140), Vector3.new(0, -1, 0), Color3.fromRGB(70, 170, 80), Enum.Material.Grass, world)
-	makePart("CanalWater", "Part", Vector3.new(210, 1, 16), Vector3.new(0, 0.1, 0), Color3.fromRGB(40, 120, 255), Enum.Material.Water, world)
-	makePart("CanalBed", "Part", Vector3.new(210, 0.4, 16), Vector3.new(0, -0.6, 0), Color3.fromRGB(30, 80, 160), Enum.Material.SmoothPlastic, world)
+	makePart("Island", "Part", V3(240, 2, 140), V3(0, -1, 0), C(70, 170, 80), Enum.Material.Grass, world)
+	makePart("CanalWater", "Part", V3(210, 1, 16), V3(0, 0.1, 0), C(40, 120, 255), Enum.Material.Water, world)
+	makePart("CanalBed", "Part", V3(210, 0.4, 16), V3(0, -0.6, 0), C(30, 80, 160), Enum.Material.SmoothPlastic, world)
 	-- Wooden docks along both canal banks.
 	for x = -100, 100, 20 do
-		makePart("DockNorth", "Part", Vector3.new(16, 0.6, 3), Vector3.new(x, 0.6, -9.5), Color3.fromRGB(150, 105, 60), Enum.Material.Wood, world)
-		makePart("DockSouth", "Part", Vector3.new(16, 0.6, 3), Vector3.new(x, 0.6, 9.5), Color3.fromRGB(150, 105, 60), Enum.Material.Wood, world)
+		makePart("DockNorth", "Part", V3(16, 0.6, 3), V3(x, 0.6, -9.5), C(150, 105, 60), Enum.Material.Wood, world)
+		makePart("DockSouth", "Part", V3(16, 0.6, 3), V3(x, 0.6, 9.5), C(150, 105, 60), Enum.Material.Wood, world)
 	end
 	-- Neon canal edge strips so the conveyor path reads at a glance.
-	makePart("CanalEdgeNorth", "Part", Vector3.new(210, 0.3, 0.8), Vector3.new(0, 0.7, -8), Color3.fromRGB(90, 230, 255), Enum.Material.Neon, world)
-	makePart("CanalEdgeSouth", "Part", Vector3.new(210, 0.3, 0.8), Vector3.new(0, 0.7, 8), Color3.fromRGB(90, 230, 255), Enum.Material.Neon, world)
+	makePart("CanalEdgeNorth", "Part", V3(210, 0.3, 0.8), V3(0, 0.7, -8), C(90, 230, 255), Enum.Material.Neon, world)
+	makePart("CanalEdgeSouth", "Part", V3(210, 0.3, 0.8), V3(0, 0.7, 8), C(90, 230, 255), Enum.Material.Neon, world)
 
 	-- Spawn area at the west end.
-	spawnPad = makePart("SpawnPad", "Part", Vector3.new(16, 1, 16), Vector3.new(-108, 0.5, 26), Color3.fromRGB(255, 220, 90), Enum.Material.Neon, world)
+	spawnPad = makePart("SpawnPad", "Part", V3(16, 1, 16), V3(-108, 0.5, 26), C(255, 220, 90), Enum.Material.Neon, world)
 	spawnPad.Transparency = 0.4
-	local spawnSign = makePart("SpawnSign", "Part", Vector3.new(14, 3, 0.6), Vector3.new(-108, 5, 18), Color3.fromRGB(30, 30, 45), Enum.Material.SmoothPlastic, world)
+	local spawnSign = makePart("SpawnSign", "Part", V3(14, 3, 0.6), V3(-108, 5, 18), C(30, 30, 45), Enum.Material.SmoothPlastic, world)
 	local spawnGui = Instance.new("SurfaceGui")
 	spawnGui.Face = Enum.NormalId.Front
 	spawnGui.Parent = spawnSign
@@ -131,7 +135,7 @@ function WorldBuilder.buildWorld()
 	spawnLabel.Size = UDim2.fromScale(1, 1)
 	spawnLabel.BackgroundTransparency = 1
 	spawnLabel.Text = "SPAWN"
-	spawnLabel.TextColor3 = Color3.fromRGB(255, 220, 90)
+	spawnLabel.TextColor3 = C(255, 220, 90)
 	spawnLabel.TextScaled = true
 	spawnLabel.Font = Enum.Font.GothamBlack
 	spawnLabel.Parent = spawnGui
@@ -143,9 +147,9 @@ function WorldBuilder.buildWorld()
 	end
 
 	-- Big BRAINROT BOG sign over the canal's east end.
-	local signPost1 = makePart("SignPost1", "Part", Vector3.new(1.5, 14, 1.5), Vector3.new(102, 7, -10), Color3.fromRGB(120, 80, 40), Enum.Material.Wood, world)
-	local signPost2 = makePart("SignPost2", "Part", Vector3.new(1.5, 14, 1.5), Vector3.new(102, 7, 10), Color3.fromRGB(120, 80, 40), Enum.Material.Wood, world)
-	local bigSign = makePart("BogSign", "Part", Vector3.new(1, 8, 26), Vector3.new(102, 15, 0), Color3.fromRGB(30, 30, 45), Enum.Material.SmoothPlastic, world)
+	local signPost1 = makePart("SignPost1", "Part", V3(1.5, 14, 1.5), V3(102, 7, -10), C(120, 80, 40), Enum.Material.Wood, world)
+	local signPost2 = makePart("SignPost2", "Part", V3(1.5, 14, 1.5), V3(102, 7, 10), C(120, 80, 40), Enum.Material.Wood, world)
+	local bigSign = makePart("BogSign", "Part", V3(1, 8, 26), V3(102, 15, 0), C(30, 30, 45), Enum.Material.SmoothPlastic, world)
 	local bigGui = Instance.new("SurfaceGui")
 	bigGui.Face = Enum.NormalId.Left
 	bigGui.Parent = bigSign
@@ -153,13 +157,13 @@ function WorldBuilder.buildWorld()
 	bigLabel.Size = UDim2.fromScale(1, 1)
 	bigLabel.BackgroundTransparency = 1
 	bigLabel.Text = "BRAINROT BOG"
-	bigLabel.TextColor3 = Color3.fromRGB(90, 230, 255)
+	bigLabel.TextColor3 = C(90, 230, 255)
 	bigLabel.TextScaled = true
 	bigLabel.Font = Enum.Font.GothamBlack
 	bigLabel.Parent = bigGui
 
 	-- Leaderboard board near spawn.
-	local board = makePart("LeaderboardBoard", "Part", Vector3.new(0.8, 10, 14), Vector3.new(-100, 5, 44), Color3.fromRGB(30, 30, 45), Enum.Material.SmoothPlastic, world)
+	local board = makePart("LeaderboardBoard", "Part", V3(0.8, 10, 14), V3(-100, 5, 44), C(30, 30, 45), Enum.Material.SmoothPlastic, world)
 	local boardGui = Instance.new("SurfaceGui")
 	boardGui.Face = Enum.NormalId.Right
 	boardGui.Parent = board
@@ -168,7 +172,7 @@ function WorldBuilder.buildWorld()
 	boardTitle.Size = UDim2.new(1, 0, 0.18, 0)
 	boardTitle.BackgroundTransparency = 1
 	boardTitle.Text = "RICHEST IN THE BOG"
-	boardTitle.TextColor3 = Color3.fromRGB(255, 220, 90)
+	boardTitle.TextColor3 = C(255, 220, 90)
 	boardTitle.TextScaled = true
 	boardTitle.Font = Enum.Font.GothamBlack
 	boardTitle.Parent = boardGui
@@ -178,33 +182,32 @@ function WorldBuilder.buildWorld()
 	boardBody.Size = UDim2.new(1, 0, 0.82, 0)
 	boardBody.BackgroundTransparency = 1
 	boardBody.Text = "No players yet..."
-	boardBody.TextColor3 = Color3.fromRGB(255, 255, 255)
+	boardBody.TextColor3 = C(255, 255, 255)
 	boardBody.TextScaled = true
 	boardBody.Font = Enum.Font.GothamBold
 	boardBody.Parent = boardGui
-	world:SetAttribute("BoardBody", boardBody)
 
 	-- Trees, rocks and lamps scattered around the island edges.
 	local treeSpots = {
-		Vector3.new(-115, 0, -55), Vector3.new(-60, 0, -62), Vector3.new(0, 0, -62),
-		Vector3.new(60, 0, -62), Vector3.new(115, 0, -55), Vector3.new(-115, 0, 55),
-		Vector3.new(-55, 0, 62), Vector3.new(5, 0, 62), Vector3.new(62, 0, 62),
-		Vector3.new(115, 0, 55), Vector3.new(-95, 0, -28), Vector3.new(95, 0, 28),
+		V3(-115, 0, -55), V3(-60, 0, -62), V3(0, 0, -62),
+		V3(60, 0, -62), V3(115, 0, -55), V3(-115, 0, 55),
+		V3(-55, 0, 62), V3(5, 0, 62), V3(62, 0, 62),
+		V3(115, 0, 55), V3(-95, 0, -28), V3(95, 0, 28),
 	}
 	for _, spot in ipairs(treeSpots) do
 		buildTree(world, spot, 0.9 + math.random() * 0.5)
 	end
 	local rockSpots = {
-		Vector3.new(-40, 0, -58), Vector3.new(40, 0, -58), Vector3.new(-40, 0, 58),
-		Vector3.new(40, 0, 58), Vector3.new(-105, 0, -30), Vector3.new(105, 0, -30),
-		Vector3.new(-105, 0, 55), Vector3.new(105, 0, 55), Vector3.new(0, 0, -30),
-		Vector3.new(0, 0, 30),
+		V3(-40, 0, -58), V3(40, 0, -58), V3(-40, 0, 58),
+		V3(40, 0, 58), V3(-105, 0, -30), V3(105, 0, -30),
+		V3(-105, 0, 55), V3(105, 0, 55), V3(0, 0, -30),
+		V3(0, 0, 30),
 	}
 	for _, spot in ipairs(rockSpots) do
-		local rock = makePart("Rock", "Part", Vector3.new(3 + math.random() * 2, 2 + math.random(), 3 + math.random() * 2), spot + Vector3.new(0, 1, 0), Color3.fromRGB(130, 130, 140), Enum.Material.Slate, world)
+		local rock = makePart("Rock", "Part", V3(3 + math.random() * 2, 2 + math.random(), 3 + math.random() * 2), spot + V3(0, 1, 0), C(130, 130, 140), Enum.Material.Slate, world)
 		rock.Shape = Enum.PartType.Ball
 	end
-	for _, lampSpot in ipairs({ Vector3.new(-100, 0, -20), Vector3.new(-100, 0, 20), Vector3.new(0, 0, -20), Vector3.new(0, 0, 20), Vector3.new(100, 0, -20), Vector3.new(100, 0, 20) }) do
+	for _, lampSpot in ipairs({ V3(-100, 0, -20), V3(-100, 0, 20), V3(0, 0, -20), V3(0, 0, 20), V3(100, 0, -20), V3(100, 0, 20) }) do
 		buildLamp(world, lampSpot)
 	end
 
