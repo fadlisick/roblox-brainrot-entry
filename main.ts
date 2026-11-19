@@ -1,14 +1,18 @@
-// A working roblox-brainrot-01 entry (Node 22, standard library only): the game is this directory's Rojo
-// project, built into game.rbxl with `rojo build default.project.json --output game.rbxl`, and the program
-// hands it in. It copies game.rbxl, src/, screenshots/ and PLAY.json from beside this file to /output and
-// writes /output/dossier.json, the summary the judge reads, with the vendored make.fun library. A starting
-// point, not a winner: it is a grey square that moves with the arrow keys. Build your game, rebuild
-// game.rbxl, put your PNG or JPEG screenshots in screenshots/ (the first by name is the cover, and one of
-// them is the thumbnail you upload for your game on Roblox) and fill in PLAY.json with your published place.
+// Brainrot Bog — a make.fun roblox-brainrot-01 entry (Node 22, standard library only).
+// The game is this directory's Rojo project, built into game.rbxl with
+// `rojo build default.project.json --output game.rbxl`, and the program hands it in.
+// It copies game.rbxl, src/, screenshots/ and PLAY.json from beside this file to /output
+// and writes /output/dossier.json, the summary the judge reads, with the vendored
+// make.fun library. Brainrot Bog is a full 3D game: 48 original brainrots walk a canal
+// conveyor, players buy them onto 8 coloured bases, money ticks per second, bases can
+// be locked, brainrots can be stolen and slapped back, a tsunami sweeps the map every
+// 3 minutes, and rebirths, upgrades and a 48-character Index drive progression.
+// The world, the characters and the UI are all built in code by src/server and src/client.
 //
-// Every name under /output starts with a letter, a digit or _ and holds only letters, digits, . _ and -: the
-// grader fails an entry whose output holds any other, so a file such as .gitkeep or .DS_Store copied in fails it.
-// So src/ and screenshots/ are copied without any name that starts with a dot, at any depth.
+// Every name under /output starts with a letter, a digit or _ and holds only letters,
+// digits, . _ and -: the grader fails an entry whose output holds any other, so a file
+// such as .gitkeep or .DS_Store copied in fails it. So src/ and screenshots/ are copied
+// without any name that starts with a dot, at any depth.
 //
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts

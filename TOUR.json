@@ -1,1 +1,1 @@
-{"tour": 1, "steps": [{"screenshot": "1-start.png"}, {"screenshot": "2-play.png", "keys": ["Right"], "wait_ms": 1000}, {"screenshot": "3-end.png", "keys": ["Down"], "wait_ms": 1000}]}
+{"steps":[{"screenshot":"1-thumbnail.jpg"},{"keys":["W"],"screenshot":"2-buy.jpg","wait_ms":2000},{"keys":["W"],"screenshot":"3-base.jpg","wait_ms":2000},{"call":{"arg":"tour","fn":"triggerTsunamiForTour","module":"ServerScriptService.Server.WaveService","on":"Server"},"screenshot":"4-wave.jpg","wait_ms":3000}],"tour":1}
